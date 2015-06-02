@@ -98,7 +98,7 @@ class Board(Widget):
         if self.moving:
             return
 
-        self.reset_is_tile_combined()
+        self.reset_tile_combined_flag()
 
         dir_x = int(dir_x)
         dir_y = int(dir_y)
@@ -115,7 +115,7 @@ class Board(Widget):
                 self.b[x][y] = tile
 
             if self.can_combine(x + dir_x, y + dir_y, tile.number) and\
-                            self.b[x + dir_x][y + dir_y].is_current_combined is False:
+                            self.b[x + dir_x][y + dir_y].is_currently_combined is False:
 
                 self.b[x][y] = None
                 x += dir_x
@@ -124,7 +124,7 @@ class Board(Widget):
                 self.b[x][y] = tile
                 tile.number *= 2
                 tile.update_color()
-                tile.is_current_combined = True
+                tile.is_currently_combined = True
                 self.score += tile.number / 2
 
                 if tile.number == 2048:
@@ -141,11 +141,11 @@ class Board(Widget):
 
             anim.start(tile)
 
-    def reset_is_tile_combined(self):
+    def reset_tile_combined_flag(self):
         for i, j in self.all_cell():
             tile = self.b[i][j]
             if tile:
-                tile.is_current_combined = False
+                tile.is_currently_combined = False
 
     def can_combine(self, x, y, number):
         return self.valid_cell(x, y) and self.b[x][y] is not None and self.b[x][y].number == number
@@ -188,7 +188,7 @@ class Tile(Widget):
     number = NumericProperty(2)
     color = ListProperty(get_color_from_hex(TILE_COLORS[2]))
     number_color = ListProperty(get_color_from_hex('#FFFFFF'))
-    is_current_combined = False
+    is_currently_combined = False
 
     def __init__(self, number=2, **kwargs):
         super(Tile, self).__init__(**kwargs)
