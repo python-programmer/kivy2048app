@@ -1,0 +1,57 @@
+#: set PADDING 10
+
+<CustomFontLabel@Label>:
+    font_name: 'Roboto'
+
+BoxLayout:
+    orientation: 'vertical'
+    padding: [0, PADDING]
+    BoxLayout:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        width: board.width
+        size_hint: (None, None)
+        height: '64dp'
+        padding: [PADDING, PADDING]
+
+        AnchorLayout:
+            anchor_x: 'left'
+            CustomFontLabel:
+                text: '2048[sup]kivy[/sup]'
+                markup: True
+                bold: True
+                size_hint_x: None
+                font_size: 28
+
+        AnchorLayout:
+            anchor_x: 'right'
+            CustomFontLabel:
+                text: 'Score\n'+'[size=18][color=e0f2f1]'+str(board.score)+'[/color][/size]'
+                markup: True
+                bold: True
+                halign: 'center'
+                size_hint_x: None
+
+
+    FloatLayout:
+        id: floatLayout
+        Board:
+            id: board
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            size_hint: (None, None)
+            size: [min(floatLayout.width, floatLayout.height) - 2 * PADDING] * 2
+
+<Tile>:
+    canvas:
+        Color:
+            rgb: self.color
+        BorderImage:
+            pos: self.pos
+            size: self.size
+            source: 'data/img/cell.png'
+
+    CustomFontLabel:
+        pos: root.pos
+        size: root.size
+        text: str(root.number)
+        color: root.number_color
+        font_size: root.font_size
