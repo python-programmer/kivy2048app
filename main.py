@@ -13,9 +13,10 @@ from kivy.core.text import LabelBase
 NUMBER_OF_CELL = 4
 
 SPACING = 7
-COLORS = ('00bcd4', '0097a7', '006064', '009688',
-          '00796b', '004d40', '3f51b5', '303f9f',
-          '1a237e', '673ab7', '512da8')
+COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
+          'd4e157', '9ccc65', '66bb6a', '009688',
+          'ffb300', 'ff9800', 'ff7043', 'ec407a',
+          'bdbdbd', '78909c', '8d6e63', 'ab47bc' ) 
 
 KEYCODE_VECTORES = {
     Keyboard.keycodes['up']: (0, 1),
@@ -184,16 +185,16 @@ class Board(Widget):
 
 
 class Tile(Widget):
-    font_size = NumericProperty(16)
+    font_size = NumericProperty(14)
     number = NumericProperty(2)
     color = ListProperty(get_color_from_hex(TILE_COLORS[2]))
-    number_color = ListProperty(get_color_from_hex('#FFFFFF'))
+    number_color = ListProperty(get_color_from_hex('FFFFFF'))
     is_currently_combined = False
 
     def __init__(self, number=2, **kwargs):
         super(Tile, self).__init__(**kwargs)
         self.number = number
-        self.font_size = 0.5 * self.width
+        self.font_size = 0.36 * self.width
         self.update_color()
 
     def update_color(self):
@@ -203,7 +204,7 @@ class Tile(Widget):
     def resize(self, pos, size):
         self.size = size
         self.pos = pos
-        self.font_size = 0.5 * self.width
+        self.font_size = 0.36 * self.width
 
 
 class GameApp(App):
