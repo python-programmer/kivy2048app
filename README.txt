@@ -6,3 +6,5 @@ GOOGLE TRANSLATE
 This project was created to assess the capabilities kivy.
 In this project, we want to make the well known 2048 app by using kivy
 We want to know Whether kivy is appropriate to build mobile applications.
+
+Background Music: http://www.bensound.com

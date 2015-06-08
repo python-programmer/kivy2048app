@@ -9,6 +9,8 @@ from kivy.properties import NumericProperty, ListProperty
 from kivy.core.window import Keyboard
 from kivy.vector import Vector
 from kivy.core.text import LabelBase
+from kivy.core.audio import SoundLoader
+from kivy.clock import Clock
 
 NUMBER_OF_CELL = 4
 
@@ -16,9 +18,9 @@ SPACING = 7
 COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
           'd4e157', '9ccc65', '66bb6a', '009688',
           'ffb300', 'ff9800', 'ff7043', 'ec407a',
-          'bdbdbd', '78909c', '8d6e63', 'ab47bc' ) 
+          'bdbdbd', '78909c', '8d6e63', 'ab47bc')
 
-KEYCODE_VECTORES = {
+KEY_VECTORS = {
     Keyboard.keycodes['up']: (0, 1),
     Keyboard.keycodes['down']: (0, -1),
     Keyboard.keycodes['left']: (-1, 0),
@@ -33,11 +35,21 @@ class Board(Widget):
          for j in range(NUMBER_OF_CELL)]
     cell_size = None
     moving = False
+    has_combination = False
     score = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
         self.resize()
+        self.moveSound = SoundLoader.load('data/audio/move.mp3')
+        self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
+        # self.backgroundSound.loop = True change volume to default on start
+        self.backgroundSound.on_stop = self.play_background_sound
+        Clock.schedule_once(self.play_background_sound)
+
+    def play_background_sound(self, dt):
+        self.backgroundSound.play()
+        self.backgroundSound.volume = 0.1
 
     def resize(self, *args):
         self.cell_size = [(self.width - (NUMBER_OF_CELL+1)*SPACING)/NUMBER_OF_CELL] * 2
@@ -82,6 +94,10 @@ class Board(Widget):
         return self.valid_cell(x, y) and self.b[x][y] is None
 
     def new_tile(self, *args):
+        if self.moveSound.state is 'play':
+            self.moveSound.stop()
+
+        self.has_combination = False
         empty_cell = [(x, y) for x, y in self.all_cell() if self.b[x][y] is None]
         x, y = random.choice(empty_cell)
         tile = Tile(size=self.cell_size, pos=self.cell_pos(x, y))
@@ -92,8 +108,8 @@ class Board(Widget):
         self.moving = False
 
     def on_key_down(self, window, key, *args):
-        if key in KEYCODE_VECTORES:
-            self.move(*KEYCODE_VECTORES[key])
+        if key in KEY_VECTORS:
+            self.move(*KEY_VECTORS[key])
 
     def move(self, dir_x, dir_y):
         if self.moving:
@@ -116,7 +132,7 @@ class Board(Widget):
                 self.b[x][y] = tile
 
             if self.can_combine(x + dir_x, y + dir_y, tile.number) and\
-                            self.b[x + dir_x][y + dir_y].is_currently_combined is False:
+                            self.b[x + dir_x][y + dir_y].is_recently_combined is False:
 
                 self.b[x][y] = None
                 x += dir_x
@@ -125,8 +141,9 @@ class Board(Widget):
                 self.b[x][y] = tile
                 tile.number *= 2
                 tile.update_color()
-                tile.is_currently_combined = True
+                tile.is_recently_combined = True
                 self.score += tile.number / 2
+                self.has_combination = True
 
                 if tile.number == 2048:
                     self.win()
@@ -134,19 +151,20 @@ class Board(Widget):
             if board_x == x and board_y == y:
                 continue
 
-            anim = Animation(pos=self.cell_pos(x, y), duration=0.2, transition='in_cubic')
+            self.moveSound.play()
+            animate = Animation(pos=self.cell_pos(x, y), duration=0.2, transition='in_cubic')
 
             if not self.moving:
-                anim.on_complete = self.new_tile
+                animate.on_complete = self.new_tile
                 self.moving = True
 
-            anim.start(tile)
+            animate.start(tile)
 
     def reset_tile_combined_flag(self):
         for i, j in self.all_cell():
             tile = self.b[i][j]
             if tile:
-                tile.is_currently_combined = False
+                tile.is_recently_combined = False
 
     def can_combine(self, x, y, number):
         return self.valid_cell(x, y) and self.b[x][y] is not None and self.b[x][y].number == number
@@ -179,7 +197,6 @@ class Board(Widget):
 
         return True
 
-
     on_size = resize
     on_pos = resize
 
@@ -189,7 +206,7 @@ class Tile(Widget):
     number = NumericProperty(2)
     color = ListProperty(get_color_from_hex(TILE_COLORS[2]))
     number_color = ListProperty(get_color_from_hex('FFFFFF'))
-    is_currently_combined = False
+    is_recently_combined = False
 
     def __init__(self, number=2, **kwargs):
         super(Tile, self).__init__(**kwargs)
