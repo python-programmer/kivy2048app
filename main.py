@@ -11,6 +11,7 @@ from kivy.vector import Vector
 from kivy.core.text import LabelBase
 from kivy.core.audio import SoundLoader
 from kivy.clock import Clock
+from kivy.storage.jsonstore import JsonStore
 
 NUMBER_OF_CELL = 4
 
@@ -37,17 +38,17 @@ class Board(Widget):
     moving = False
     has_combination = False
     score = NumericProperty(0)
+    storage = JsonStore('db.json')
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
-        self.resize()
         self.moveSound = SoundLoader.load('data/audio/move.mp3')
         self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
         # self.backgroundSound.loop = True change volume to default on start
         self.backgroundSound.on_stop = self.play_background_sound
         Clock.schedule_once(self.play_background_sound)
 
-    def play_background_sound(self, dt):
+    def play_background_sound(self, dt=None):
         self.backgroundSound.play()
         self.backgroundSound.volume = 0.1
 
@@ -100,12 +101,15 @@ class Board(Widget):
         self.has_combination = False
         empty_cell = [(x, y) for x, y in self.all_cell() if self.b[x][y] is None]
         x, y = random.choice(empty_cell)
-        tile = Tile(size=self.cell_size, pos=self.cell_pos(x, y))
-        self.b[x][y] = tile
-        self.add_widget(tile)
+        self.add_tile(x, y)
         if len(empty_cell) == 1 and self.is_deadlock():
             self.lose()
         self.moving = False
+
+    def add_tile(self, x, y, number=2):
+        tile = Tile(number=number, size=self.cell_size, pos=self.cell_pos(x, y))
+        self.b[x][y] = tile
+        self.add_widget(tile)
 
     def on_key_down(self, window, key, *args):
         if key in KEY_VECTORS:
@@ -200,6 +204,23 @@ class Board(Widget):
     on_size = resize
     on_pos = resize
 
+    def store_cell_data(self):
+        data = [[self.b[i][j].number if self.b[i][j] else None
+                 for j in range(NUMBER_OF_CELL)]
+                for i in range(NUMBER_OF_CELL)]
+
+        self.storage.put('storage', cells=data)
+
+    def restore_cell_data(self):
+        if self.storage.exists('storage'):
+            data = self.storage.get('storage')['cells']
+            NUMBER_OF_CELL = len(data[0])
+            for x, y in self.all_cell():
+                if data[x][y]:
+                    self.add_tile(x, y, number=data[x][y])
+        else:
+            self.reset()
+
 
 class Tile(Widget):
     font_size = NumericProperty(14)
@@ -227,8 +248,12 @@ class Tile(Widget):
 class GameApp(App):
     def on_start(self):
         board = self.root.ids.board
-        board.reset()
+        board.restore_cell_data()
         Window.bind(on_key_down=board.on_key_down)
+
+    def on_stop(self):
+        board = self.root.ids.board
+        board.store_cell_data()
 
 
 if __name__ == '__main__':
