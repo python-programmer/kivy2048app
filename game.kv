@@ -1,35 +1,55 @@
 #: set PADDING 10
+#: import utils kivy.utils
 
-<CustomFontLabel@Label>:
+<CustomLabel@Label>:
     font_name: 'Roboto'
+
+<BaseButton@Button>:
+    font_name: 'Roboto'
+    bold: True
+    border: [2, 2, 2, 2]
+
+<DefaultButton@BaseButton>:
+    background_normal: 'data/img/default_background_normal.png'
+    background_down: 'data/img/default_background_down.png'
+    color: utils.get_color_from_hex('546E7A')
+
+<DangerButton@BaseButton>:
+    background_normal: 'data/img/danger_background_normal.png'
+    background_down: 'data/img/danger_background_down.png'
+
+<InfoButton@Button>:
+    background_normal: 'data/img/info_background_normal.png'
+    background_down: 'data/img/info_background_down.png'
 
 BoxLayout:
     orientation: 'vertical'
     padding: [0, PADDING]
     BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        width: board.width
         size_hint: (None, None)
         height: '64dp'
+        width: board.width
         padding: [PADDING, PADDING]
 
         AnchorLayout:
             anchor_x: 'left'
-            CustomFontLabel:
+            CustomLabel:
                 text: '2048[sup]kivy[/sup]'
                 markup: True
                 bold: True
                 size_hint_x: None
-                font_size: 28
+                font_size: 24
 
         AnchorLayout:
             anchor_x: 'right'
-            CustomFontLabel:
-                text: 'Score\n'+'[size=18][color=e0f2f1]'+str(board.score)+'[/color][/size]'
+            CustomLabel:
+                text: 'Score\n'+'[size=16][color=e0f2f1]'+str(board.score)+'[/color][/size]'
                 markup: True
                 bold: True
                 halign: 'center'
                 size_hint_x: None
+                font_size: 14
 
 
     FloatLayout:
@@ -40,6 +60,25 @@ BoxLayout:
             size_hint: (None, None)
             size: [min(floatLayout.width, floatLayout.height) - 2 * PADDING] * 2
 
+    BoxLayout:
+        orientation: 'horizontal'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        size_hint: (None, None)
+        width: board.width
+        height: board.width / 10
+        spacing: PADDING
+
+        DefaultButton:
+            size_hint_x: 50
+            text: 'Reset'
+            font_size: board.width / 24
+            on_press: board.show_popup()
+
+        DefaultButton:
+            size_hint_x: 50
+            text: 'Rate'
+            font_size: board.width / 24
+
 <Tile>:
     canvas:
         Color:
@@ -49,10 +88,43 @@ BoxLayout:
             size: self.size
             source: 'data/img/cell.png'
 
-    CustomFontLabel:
+    CustomLabel:
         pos: root.pos
         size: root.size
         text: str(root.number)
         color: root.number_color
         font_size: root.font_size
         bold: True
+
+<CustomPopup@Popup>:
+    base_size: app.root.ids.board.width
+    title: 'Reset'
+    title_color: utils.get_color_from_hex('333333')
+    title_size: root.base_size / 16
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    size_hint: (None, None)
+    width: root.base_size
+    height: root.base_size / 1.8
+    auto_dismiss: False
+    background: 'data/img/board.png'
+    BoxLayout:
+        id: popup_content
+        orientation: 'vertical'
+        CustomLabel:
+            text: 'Are you sure?'
+            color: utils.get_color_from_hex('333333')
+            bold: True
+            font_size: root.base_size / 24
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: root.base_size / 8
+            spacing: PADDING
+            DangerButton:
+                text: 'Yes'
+                on_press: root.dismiss() and app.root.ids.board.reset()
+                font_size: root.base_size / 24
+            InfoButton:
+                text: 'No'
+                on_press: root.dismiss()
+                font_size: root.base_size / 24

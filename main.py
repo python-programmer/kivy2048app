@@ -1,4 +1,5 @@
 from kivy.animation import Animation
+from kivy.factory import Factory
 import random
 from kivy.app import App
 from kivy.uix.widget import Widget
@@ -83,6 +84,8 @@ class Board(Widget):
         self.moving = False
         self.b = [[None for i in range(NUMBER_OF_CELL)]
                   for j in range(NUMBER_OF_CELL)]
+
+        self.clear_widgets()
 
         self.new_tile()
         self.new_tile()
@@ -212,6 +215,7 @@ class Board(Widget):
         self.storage.put('storage', cells=data)
 
     def restore_cell_data(self):
+        global NUMBER_OF_CELL
         if self.storage.exists('storage'):
             data = self.storage.get('storage')['cells']
             NUMBER_OF_CELL = len(data[0])
@@ -220,6 +224,11 @@ class Board(Widget):
                     self.add_tile(x, y, number=data[x][y])
         else:
             self.reset()
+
+    @staticmethod
+    def show_popup():
+        popup = Factory.CustomPopup()
+        popup.open()
 
 
 class Tile(Widget):
