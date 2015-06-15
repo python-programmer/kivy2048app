@@ -40,6 +40,7 @@ class Board(Widget):
     has_combination = False
     score = NumericProperty(0)
     storage = JsonStore('db.json')
+    best_score = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
@@ -86,6 +87,7 @@ class Board(Widget):
                   for j in range(NUMBER_OF_CELL)]
 
         self.clear_widgets()
+        self.score = 0
 
         self.new_tile()
         self.new_tile()
@@ -155,6 +157,9 @@ class Board(Widget):
                 if tile.number == 2048:
                     self.win()
 
+                if self.best_score < self.score:
+                    self.best_score = self.score
+
             if board_x == x and board_y == y:
                 continue
 
@@ -212,7 +217,7 @@ class Board(Widget):
                  for j in range(NUMBER_OF_CELL)]
                 for i in range(NUMBER_OF_CELL)]
 
-        self.storage.put('storage', cells=data)
+        self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score)
 
     def restore_cell_data(self):
         global NUMBER_OF_CELL
@@ -222,6 +227,8 @@ class Board(Widget):
             for x, y in self.all_cell():
                 if data[x][y]:
                     self.add_tile(x, y, number=data[x][y])
+            self.score = self.storage.get('storage')['score']
+            self.best_score = self.storage.get('storage')['best_score']
         else:
             self.reset()
 

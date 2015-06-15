@@ -41,10 +41,19 @@ BoxLayout:
                 size_hint_x: None
                 font_size: 24
 
-        AnchorLayout:
-            anchor_x: 'right'
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: '64dp'
             CustomLabel:
                 text: 'Score\n'+'[size=16][color=e0f2f1]'+str(board.score)+'[/color][/size]'
+                markup: True
+                bold: True
+                halign: 'center'
+                size_hint_x: None
+                font_size: 14
+            CustomLabel:
+                text: 'Best\n'+'[size=16][color=e0f2f1]'+str(board.best_score)+'[/color][/size]'
                 markup: True
                 bold: True
                 halign: 'center'
