@@ -107,7 +107,6 @@ BoxLayout:
 
 <CustomPopup@Popup>:
     base_size: app.root.ids.board.width
-    title: 'Reset'
     title_color: utils.get_color_from_hex('333333')
     title_size: root.base_size / 16
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -116,12 +115,15 @@ BoxLayout:
     height: root.base_size / 1.8
     auto_dismiss: False
     background: 'data/img/board.png'
+    title_color: utils.get_color_from_hex('546E7A')
+
+<ResetPopup@CustomPopup>:
+    title: 'Reset'
     BoxLayout:
-        id: popup_content
         orientation: 'vertical'
         CustomLabel:
             text: 'Are you sure?'
-            color: utils.get_color_from_hex('333333')
+            color: utils.get_color_from_hex('546E7A')
             bold: True
             font_size: root.base_size / 24
         BoxLayout:
@@ -135,5 +137,25 @@ BoxLayout:
                 font_size: root.base_size / 24
             InfoButton:
                 text: 'No'
+                on_press: root.dismiss()
+                font_size: root.base_size / 24
+
+
+<WinPopup@CustomPopup>:
+    title: 'Congratulation!'
+    BoxLayout:
+        orientation: 'vertical'
+        CustomLabel:
+            text: 'You have successfully reached to 2048'
+            color: utils.get_color_from_hex('546E7A')
+            bold: True
+            font_size: root.base_size / 24
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: root.base_size / 8
+            spacing: PADDING
+            InfoButton:
+                text: 'Continue'
                 on_press: root.dismiss()
                 font_size: root.base_size / 24

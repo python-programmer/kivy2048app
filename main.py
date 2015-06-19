@@ -41,6 +41,7 @@ class Board(Widget):
     score = NumericProperty(0)
     storage = JsonStore('db.json')
     best_score = NumericProperty(0)
+    win_flag = False
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
@@ -83,6 +84,7 @@ class Board(Widget):
 
     def reset(self):
         self.moving = False
+        self.win_flag = False
         self.b = [[None for i in range(NUMBER_OF_CELL)]
                   for j in range(NUMBER_OF_CELL)]
 
@@ -154,7 +156,8 @@ class Board(Widget):
                 self.score += tile.number / 2
                 self.has_combination = True
 
-                if tile.number == 2048:
+                if tile.number == 16 and self.win_flag is False:
+                    self.win_flag = True
                     self.win()
 
                 if self.best_score < self.score:
@@ -193,10 +196,13 @@ class Board(Widget):
 
         self.move(*v.normalize())
 
-    def win(self):
-        print('you win')
+    @staticmethod
+    def win():
+        popup = Factory.WinPopup()
+        popup.open()
 
-    def lose(self):
+    @staticmethod
+    def lose():
         print('you lose')
 
     def is_deadlock(self):
@@ -217,7 +223,7 @@ class Board(Widget):
                  for j in range(NUMBER_OF_CELL)]
                 for i in range(NUMBER_OF_CELL)]
 
-        self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score)
+        self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score, win_flag=self.win_flag)
 
     def restore_cell_data(self):
         global NUMBER_OF_CELL
@@ -229,12 +235,13 @@ class Board(Widget):
                     self.add_tile(x, y, number=data[x][y])
             self.score = self.storage.get('storage')['score']
             self.best_score = self.storage.get('storage')['best_score']
+            self.win_flag = self.storage.get('storage')['win_flag']
         else:
             self.reset()
 
     @staticmethod
     def show_popup():
-        popup = Factory.CustomPopup()
+        popup = Factory.ResetPopup()
         popup.open()
 
 
