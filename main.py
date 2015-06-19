@@ -156,7 +156,7 @@ class Board(Widget):
                 self.score += tile.number / 2
                 self.has_combination = True
 
-                if tile.number == 16 and self.win_flag is False:
+                if tile.number == 2048 and self.win_flag is False:
                     self.win_flag = True
                     self.win()
 
@@ -203,14 +203,12 @@ class Board(Widget):
 
     @staticmethod
     def lose():
-        print('you lose')
+        popup = Factory.LosePopup()
+        popup.open()
 
     def is_deadlock(self):
         for x, y in self.all_cell():
-            if self.b[x][y] is None:
-                return False
-
-            if self.can_combine(x + 1, y, self.b[x][y].number) or self.can_combine(x, y + 1, self.b[x][y]):
+            if self.can_combine(x + 1, y, self.b[x][y].number) or self.can_combine(x, y + 1, self.b[x][y].number):
                 return False
 
         return True

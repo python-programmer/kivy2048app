@@ -159,3 +159,22 @@ BoxLayout:
                 text: 'Continue'
                 on_press: root.dismiss()
                 font_size: root.base_size / 24
+
+<LosePopup@CustomPopup>:
+    title: 'Game over!'
+    BoxLayout:
+        orientation: 'vertical'
+        CustomLabel:
+            text: 'Come back my lord and give us glory'
+            color: utils.get_color_from_hex('546E7A')
+            bold: True
+            font_size: root.base_size / 24
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: root.base_size / 8
+            spacing: PADDING
+            InfoButton:
+                text: 'Reset and Continue'
+                on_press: root.dismiss() and app.root.ids.board.reset()
+                font_size: root.base_size / 24
