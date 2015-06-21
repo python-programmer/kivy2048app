@@ -8,6 +8,7 @@
     font_name: 'Roboto'
     bold: True
     border: [2, 2, 2, 2]
+    on_press: app.root.ids.board.touchSound.play()
 
 <DefaultButton@BaseButton>:
     background_normal: 'data/img/default_background_normal.png'
@@ -18,7 +19,7 @@
     background_normal: 'data/img/danger_background_normal.png'
     background_down: 'data/img/danger_background_down.png'
 
-<InfoButton@Button>:
+<InfoButton@BaseButton>:
     background_normal: 'data/img/info_background_normal.png'
     background_down: 'data/img/info_background_down.png'
 

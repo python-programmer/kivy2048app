@@ -48,6 +48,7 @@ class Board(Widget):
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
         self.moveSound = SoundLoader.load('data/audio/move.mp3')
+        self.touchSound = SoundLoader.load('data/audio/touch.mp3')
         self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
         # self.backgroundSound.loop = True change volume to default on start
         self.backgroundSound.on_stop = self.play_background_sound
