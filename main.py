@@ -22,6 +22,8 @@ COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
           'ffb300', 'ff9800', 'ff7043', 'ec407a',
           'bdbdbd', '78909c', '8d6e63', 'ab47bc')
 
+NUMBERS = [2] * 4 + [4]
+
 KEY_VECTORS = {
     Keyboard.keycodes['up']: (0, 1),
     Keyboard.keycodes['down']: (0, -1),
@@ -108,7 +110,7 @@ class Board(Widget):
         self.has_combination = False
         empty_cell = [(x, y) for x, y in self.all_cell() if self.b[x][y] is None]
         x, y = random.choice(empty_cell)
-        self.add_tile(x, y)
+        self.add_tile(x, y, number=random.choice(NUMBERS))
         if len(empty_cell) == 1 and self.is_deadlock():
             self.lose()
         self.moving = False
