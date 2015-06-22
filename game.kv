@@ -4,6 +4,20 @@
 <CustomLabel@Label>:
     font_name: 'Roboto'
 
+<ScoreLabel@CustomLabel>:
+    canvas.before:
+        Color:
+            rgb: utils.get_color_from_hex('546e7a')
+        BorderImage:
+            source: 'data/img/cell.png'
+            pos: self.pos
+            size: self.size
+    markup: True
+    bold: True
+    halign: 'center'
+    size_hint_x: 33
+    color: utils.get_color_from_hex('EEEEEE')
+
 <BaseButton>:
     font_name: 'Roboto'
     bold: True
@@ -33,33 +47,32 @@ BoxLayout:
         width: board.width
         padding: [PADDING, PADDING]
 
-        AnchorLayout:
-            anchor_x: 'left'
-            CustomLabel:
-                text: '2048[sup]kivy[/sup]'
-                markup: True
-                bold: True
-                size_hint_x: None
-                font_size: 24
-
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: '64dp'
+            spacing: 4
             CustomLabel:
-                text: 'Score\n'+'[size=16][color=e0f2f1]'+str(board.score)+'[/color][/size]'
+                text: '2048[sup]kivy[/sup]'
                 markup: True
                 bold: True
-                halign: 'center'
-                size_hint_x: None
-                font_size: 14
-            CustomLabel:
-                text: 'Best\n'+'[size=16][color=e0f2f1]'+str(board.best_score)+'[/color][/size]'
-                markup: True
-                bold: True
-                halign: 'center'
-                size_hint_x: None
-                font_size: 14
+                size_hint_x: 34
+                font_size: board.width / 16
+                text_size: self.size
+                halign: 'left'
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: '64dp'
+                spacing: 4
+                padding: [0 , PADDING]
+                size_hint_x: 66
+                ScoreLabel:
+                    text: 'Best\n'+'[size='+str(int(board.width / 25))+'][color=FFFFFF]'+str(board.best_score)+'[/color][/size]'
+                    font_size: board.width / 26
+                ScoreLabel:
+                    text: 'Score\n'+'[size='+str(int(board.width / 25))+'][color=FFFFFF]'+str(board.score)+'[/color][/size]'
+                    font_size: board.width / 26
 
 
     FloatLayout:
