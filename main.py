@@ -13,6 +13,7 @@ from kivy.core.text import LabelBase
 from kivy.core.audio import SoundLoader
 from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
+from kivy.uix.button import Button
 
 NUMBER_OF_CELL = 4
 
@@ -48,7 +49,6 @@ class Board(Widget):
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
         self.moveSound = SoundLoader.load('data/audio/move.mp3')
-        self.touchSound = SoundLoader.load('data/audio/touch.mp3')
         self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
         # self.backgroundSound.loop = True change volume to default on start
         self.backgroundSound.on_stop = self.play_background_sound
@@ -267,6 +267,12 @@ class Tile(Widget):
         self.size = size
         self.pos = pos
         self.font_size = 0.36 * self.width
+
+
+class BaseButton(Button):
+    def __init__(self, **kwargs):
+        super(BaseButton, self).__init__(**kwargs)
+        self.touchSound = SoundLoader.load('data/audio/touch.mp3')
 
 
 class GameApp(App):

@@ -4,11 +4,11 @@
 <CustomLabel@Label>:
     font_name: 'Roboto'
 
-<BaseButton@Button>:
+<BaseButton>:
     font_name: 'Roboto'
     bold: True
     border: [2, 2, 2, 2]
-    on_press: app.root.ids.board.touchSound.play()
+    on_press: root.touchSound.play()
 
 <DefaultButton@BaseButton>:
     background_normal: 'data/img/default_background_normal.png'
