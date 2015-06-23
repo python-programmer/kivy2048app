@@ -93,14 +93,24 @@ BoxLayout:
 
         DefaultButton:
             size_hint_x: 50
-            text: 'Reset'
-            font_size: board.width / 24
             on_press: board.show_popup()
+            StackLayout:
+                pos: self.parent.pos
+                size: self.parent.size
+                orientation: 'lr-tb'
+                Image:
+                    source: 'data/img/reset.png'
 
         DefaultButton:
             size_hint_x: 50
-            text: 'Rate'
-            font_size: board.width / 24
+            on_press: board.toggle_music()
+            StackLayout:
+                pos: self.parent.pos
+                size: self.parent.size
+                orientation: 'lr-tb'
+                Image:
+                    id: btn_sound
+                    source: 'data/img/sound.png'
 
 <Tile>:
     canvas:

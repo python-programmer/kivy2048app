@@ -45,6 +45,7 @@ class Board(Widget):
     storage = JsonStore('db.json')
     best_score = NumericProperty(0)
     win_flag = False
+    is_stoped_background_music = False
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
@@ -55,8 +56,9 @@ class Board(Widget):
         Clock.schedule_once(self.play_background_sound)
 
     def play_background_sound(self, dt=None):
-        self.backgroundSound.play()
-        self.backgroundSound.volume = 0.1
+        if self.is_stoped_background_music is False:
+            self.backgroundSound.play()
+            self.backgroundSound.volume = 0.1
 
     def resize(self, *args):
         self.cell_size = [(self.width - (NUMBER_OF_CELL+1)*SPACING)/NUMBER_OF_CELL] * 2
@@ -224,10 +226,12 @@ class Board(Widget):
                  for j in range(NUMBER_OF_CELL)]
                 for i in range(NUMBER_OF_CELL)]
 
-        self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score, win_flag=self.win_flag)
+        self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score,
+                         win_flag=self.win_flag, is_stoped_background_music=self.is_stoped_background_music)
 
     def restore_cell_data(self):
         global NUMBER_OF_CELL
+        btn_sound = GameApp.get_running_app().root.ids.btn_sound
         if self.storage.exists('storage'):
             data = self.storage.get('storage')['cells']
             NUMBER_OF_CELL = len(data[0])
@@ -237,6 +241,11 @@ class Board(Widget):
             self.score = self.storage.get('storage')['score']
             self.best_score = self.storage.get('storage')['best_score']
             self.win_flag = self.storage.get('storage')['win_flag']
+            self.is_stoped_background_music = self.storage.get('storage')['is_stoped_background_music']
+            if self.is_stoped_background_music:
+                btn_sound.source = 'data/img/stop-sound.png'
+            else:
+                btn_sound.source = 'data/img/sound.png'
         else:
             self.reset()
 
@@ -244,6 +253,20 @@ class Board(Widget):
     def show_popup():
         popup = Factory.ResetPopup()
         popup.open()
+
+    def toggle_music(self):
+        btn_sound = GameApp.get_running_app().root.ids.btn_sound
+        if self.backgroundSound.state is 'play':
+            # is required for play_background_sound method because self.backgroundSound.on_stop = self.play_background_sound
+            self.is_stoped_background_music = True
+            self.backgroundSound.stop()
+            btn_sound.source = 'data/img/stop-sound.png'
+        else:
+            self.is_stoped_background_music = False
+            self.backgroundSound.play()
+            self.backgroundSound.volume = 0.1
+            btn_sound.source = 'data/img/sound.png'
+    
 
 
 class Tile(Widget):
