@@ -1,3 +1,4 @@
+import time
 from kivy.animation import Animation
 from kivy.factory import Factory
 import random
@@ -118,7 +119,7 @@ class Board(Widget):
         x, y = random.choice(empty_cell)
         self.add_tile(x, y, number=random.choice(NUMBERS))
         if len(empty_cell) == 1 and self.is_deadlock():
-            self.lose()
+            Clock.schedule_once(self.lose, 2)
         self.moving = False
 
     def add_tile(self, x, y, number=2):
@@ -164,7 +165,7 @@ class Board(Widget):
                 self.score += tile.number / 2
                 self.has_combination = True
 
-                if tile.number == 16 and self.win_flag is False:
+                if tile.number == 2048 and self.win_flag is False:
                     self.win_flag = True
                     self.win()
 
@@ -212,7 +213,7 @@ class Board(Widget):
         popup = Factory.WinPopup()
         popup.open()
 
-    def lose(self):
+    def lose(self, dt=None):
         self.loseSound.play()
         if self.is_stoped_background_music is False:
             self.toggle_music()
