@@ -51,6 +51,8 @@ class Board(Widget):
         super(Board, self).__init__(**kwargs)
         self.moveSound = SoundLoader.load('data/audio/move.mp3')
         self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
+        self.winSound = SoundLoader.load('data/audio/win.mp3')
+        self.loseSound = SoundLoader.load('data/audio/lose.mp3')
         # self.backgroundSound.loop = True change volume to default on start
         self.backgroundSound.on_stop = self.play_background_sound
         Clock.schedule_once(self.play_background_sound)
@@ -94,6 +96,7 @@ class Board(Widget):
                   for j in range(NUMBER_OF_CELL)]
 
         self.clear_widgets()
+        self.stop_lose_sound()
         self.score = 0
 
         self.new_tile()
@@ -161,7 +164,7 @@ class Board(Widget):
                 self.score += tile.number / 2
                 self.has_combination = True
 
-                if tile.number == 2048 and self.win_flag is False:
+                if tile.number == 16 and self.win_flag is False:
                     self.win_flag = True
                     self.win()
 
@@ -201,15 +204,29 @@ class Board(Widget):
 
         self.move(*v.normalize())
 
-    @staticmethod
-    def win():
+    def win(self):
+        self.winSound.play()
+        if self.is_stoped_background_music is False:
+            self.toggle_music()
+            self.winSound.on_stop = self.toggle_music
         popup = Factory.WinPopup()
         popup.open()
 
-    @staticmethod
-    def lose():
+    def lose(self):
+        self.loseSound.play()
+        if self.is_stoped_background_music is False:
+            self.toggle_music()
+            self.loseSound.on_stop = self.toggle_music
         popup = Factory.LosePopup()
         popup.open()
+
+    def stop_win_sound(self):
+        if self.winSound.state is 'play':
+            self.winSound.stop()
+
+    def stop_lose_sound(self):
+        if self.loseSound.state is 'play':
+            self.loseSound.stop()
 
     def is_deadlock(self):
         for x, y in self.all_cell():

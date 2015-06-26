@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Komodo Project File - DO NOT EDIT -->
 <project id="eb99facf-d111-47f1-9a37-cad4ba32f575" kpf_version="5" name="kivy2048.komodoproject">
+<preference-set idref="eb99facf-d111-47f1-9a37-cad4ba32f575" id="project" preftype="project">
+  <long id="prefs_version">1</long>
+</preference-set>
 </project>

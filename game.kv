@@ -181,7 +181,7 @@ BoxLayout:
             spacing: PADDING
             InfoButton:
                 text: 'Continue'
-                on_press: root.dismiss()
+                on_press: root.dismiss() and app.root.ids.board.stop_win_sound()
                 font_size: root.base_size / 24
 
 <LosePopup@CustomPopup>:
@@ -189,7 +189,9 @@ BoxLayout:
     BoxLayout:
         orientation: 'vertical'
         CustomLabel:
-            text: 'Come back my lord and give us glory'
+            text: 'Victory is always possible for the person who refuses to stop fighting\n'
+            text_size: self.size
+            halign: 'center'
             color: utils.get_color_from_hex('546E7A')
             bold: True
             font_size: root.base_size / 24
