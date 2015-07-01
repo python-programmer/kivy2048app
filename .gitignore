@@ -3,3 +3,6 @@ __pycatch__/
 *~
 .idea/
 db.json
+buildozer.spec
+bin/
+.buildozer/

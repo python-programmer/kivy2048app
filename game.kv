@@ -5,6 +5,18 @@
     font_name: 'Roboto'
 
 <ScoreLabel@CustomLabel>:
+    markup: True
+    bold: True
+    halign: 'center'
+    color: utils.get_color_from_hex('EEEEEE')
+
+<ScoreLayout@BoxLayout>:
+    orientation: 'vertical'
+    text: ''
+    source: None
+    font_size: 0
+    spacing: PADDING / 4
+    padding: [PADDING / 2, PADDING / 2]
     canvas.before:
         Color:
             rgb: utils.get_color_from_hex('546e7a')
@@ -12,11 +24,13 @@
             source: 'data/img/cell.png'
             pos: self.pos
             size: self.size
-    markup: True
-    bold: True
-    halign: 'center'
-    size_hint_x: 33
-    color: utils.get_color_from_hex('EEEEEE')
+        
+    Image:
+        source: root.source
+    ScoreLabel:
+        text: root.text
+        font_size: root.font_size
+    
 
 <BaseButton>:
     font_name: 'Roboto'
@@ -29,6 +43,16 @@
     background_down: 'data/img/default_background_down.png'
     color: utils.get_color_from_hex('546E7A')
 
+<ImageButton@DefaultButton>:
+    source: None
+    StackLayout:
+        pos: self.parent.pos
+        size: self.parent.size
+        orientation: 'lr-tb'
+        padding: [PADDING / 4, PADDING / 4]
+        Image:
+            source: root.source
+
 <DangerButton@BaseButton>:
     background_normal: 'data/img/danger_background_normal.png'
     background_down: 'data/img/danger_background_down.png'
@@ -38,45 +62,40 @@
     background_down: 'data/img/info_background_down.png'
 
 BoxLayout:
+    base_size: board.width
     orientation: 'vertical'
     padding: [0, PADDING]
     BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: (None, None)
-        height: '64dp'
-        width: board.width
-        padding: [PADDING, PADDING]
-
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: '64dp'
-            spacing: 4
-            CustomLabel:
-                text: '2048[sup]kivy[/sup]'
-                markup: True
-                bold: True
-                size_hint_x: 34
-                font_size: board.width / 16
-                text_size: self.size
-                halign: 'left'
-            BoxLayout:
-                orientation: 'horizontal'
-                size_hint_y: None
-                height: '64dp'
-                spacing: 4
-                padding: [0 , PADDING]
-                size_hint_x: 66
-                ScoreLabel:
-                    text: 'Best\n'+'[size='+str(int(board.width / 25))+'][color=FFFFFF]'+str(board.best_score)+'[/color][/size]'
-                    font_size: board.width / 26
-                ScoreLabel:
-                    text: 'Score\n'+'[size='+str(int(board.width / 25))+'][color=FFFFFF]'+str(board.score)+'[/color][/size]'
-                    font_size: board.width / 26
+        size_hint: (None, 1.0)
+        size_hint_y: 12
+        width: root.base_size
+        padding: [PADDING / 2, PADDING / 2]
+        spacing: PADDING / 2
+        CustomLabel:
+            text: '2048[sup]kivy[/sup]'
+            markup: True
+            bold: True
+            size_hint_x: 34
+            font_size: root.base_size / 16
+            text_size: self.size
+            halign: 'left'
+            valign: 'middle'
+        ScoreLayout:
+            size_hint_x: 33
+            text: str(board.best_score)
+            font_size: root.base_size / 24
+            source: 'data/img/best.png'
+        ScoreLayout:
+            size_hint_x: 33
+            text: str(board.score)
+            font_size: root.base_size / 24
+            source: 'data/img/score.png'
 
 
     FloatLayout:
         id: floatLayout
+        size_hint_y: 76
         Board:
             id: board
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -86,31 +105,22 @@ BoxLayout:
     BoxLayout:
         orientation: 'horizontal'
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: (None, None)
-        width: board.width
-        height: board.width / 10
-        spacing: PADDING
+        size_hint: (None, 1.0)
+        width: root.base_size
+        size_hint_y: 12
+        spacing: PADDING / 2
+        padding: [0, PADDING]
 
-        DefaultButton:
+        ImageButton:
             size_hint_x: 50
             on_press: board.show_popup()
-            StackLayout:
-                pos: self.parent.pos
-                size: self.parent.size
-                orientation: 'lr-tb'
-                Image:
-                    source: 'data/img/reset.png'
+            source: 'data/img/reset.png'
 
-        DefaultButton:
+        ImageButton:
             size_hint_x: 50
             on_press: board.toggle_music()
-            StackLayout:
-                pos: self.parent.pos
-                size: self.parent.size
-                orientation: 'lr-tb'
-                Image:
-                    id: btn_sound
-                    source: 'data/img/sound.png'
+            id: btn_sound
+            source: 'data/img/sound.png'
 
 <Tile>:
     canvas:

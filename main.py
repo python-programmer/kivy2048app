@@ -1,4 +1,3 @@
-import time
 from kivy.animation import Animation
 from kivy.factory import Factory
 import random
@@ -136,6 +135,7 @@ class Board(Widget):
             return
 
         self.reset_tile_combined_flag()
+        animate = None
 
         dir_x = int(dir_x)
         dir_y = int(dir_y)
@@ -175,14 +175,14 @@ class Board(Widget):
             if board_x == x and board_y == y:
                 continue
 
-            self.moveSound.play()
             animate = Animation(pos=self.cell_pos(x, y), duration=0.2, transition='in_cubic')
 
-            if not self.moving:
-                animate.on_complete = self.new_tile
-                self.moving = True
-
             animate.start(tile)
+        
+        if animate and not self.moving:
+            animate.on_complete = self.new_tile
+            self.moving = True
+            self.moveSound.play()
 
     def reset_tile_combined_flag(self):
         for i, j in self.all_cell():
