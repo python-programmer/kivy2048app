@@ -15,14 +15,14 @@ from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
 
-NUMBER_OF_CELL = 4
+__version__ = '0.1.22'
 
+NUMBER_OF_CELL = 4
 SPACING = 7
 COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
           'd4e157', '9ccc65', '66bb6a', '009688',
           'ffb300', 'ff9800', 'ff7043', 'ec407a',
           'bdbdbd', '78909c', '8d6e63', 'ab47bc')
-
 NUMBERS = [2] * 4 + [4]
 
 KEY_VECTORS = {
@@ -31,6 +31,8 @@ KEY_VECTORS = {
     Keyboard.keycodes['left']: (-1, 0),
     Keyboard.keycodes['right']: (1, 0)
 }
+
+VOLUME = 0.2
 
 TILE_COLORS = {2 ** i: color for i, color in enumerate(COLORS, start=1)}
 
@@ -60,7 +62,7 @@ class Board(Widget):
     def play_background_sound(self, dt=None):
         if self.is_stoped_background_music is False:
             self.backgroundSound.play()
-            self.backgroundSound.volume = 0.1
+            self.backgroundSound.volume = VOLUME
 
     def resize(self, *args):
         self.cell_size = [(self.width - (NUMBER_OF_CELL+1)*SPACING)/NUMBER_OF_CELL] * 2
@@ -174,15 +176,14 @@ class Board(Widget):
 
             if board_x == x and board_y == y:
                 continue
-
-            animate = Animation(pos=self.cell_pos(x, y), duration=0.2, transition='in_cubic')
-
+            
+            animate = Animation(pos=self.cell_pos(x, y), duration=0.09, transition='out_sine')
             animate.start(tile)
         
         if animate and not self.moving:
+            self.moveSound.play()
             animate.on_complete = self.new_tile
             self.moving = True
-            self.moveSound.play()
 
     def reset_tile_combined_flag(self):
         for i, j in self.all_cell():
@@ -206,20 +207,20 @@ class Board(Widget):
         self.move(*v.normalize())
 
     def win(self):
-        self.winSound.play()
-        if self.is_stoped_background_music is False:
-            self.toggle_music()
-            self.winSound.on_stop = self.toggle_music
         popup = Factory.WinPopup()
         popup.open()
-
-    def lose(self, dt=None):
-        self.loseSound.play()
         if self.is_stoped_background_music is False:
             self.toggle_music()
-            self.loseSound.on_stop = self.toggle_music
+            popup.on_dismiss = self.toggle_music
+        self.winSound.play()
+
+    def lose(self, dt=None):
         popup = Factory.LosePopup()
         popup.open()
+        if self.is_stoped_background_music is False:
+            self.toggle_music()
+            popup.on_dismiss = self.toggle_music
+        self.loseSound.play()
 
     def stop_win_sound(self):
         if self.winSound.state is 'play':
@@ -282,7 +283,7 @@ class Board(Widget):
         else:
             self.is_stoped_background_music = False
             self.backgroundSound.play()
-            self.backgroundSound.volume = 0.1
+            self.backgroundSound.volume = VOLUME
             btn_sound.source = 'data/img/sound.png'
     
 
