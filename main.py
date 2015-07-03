@@ -16,8 +16,10 @@ from kivy.core.audio import SoundLoader
 from kivy.clock import Clock, mainthread
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
+from jnius import cast
+from jnius import autoclass
 
-__version__ = '0.1.22'
+__version__ = '0.1.24'
 
 NUMBER_OF_CELL = 4
 SPACING = 7
@@ -374,6 +376,32 @@ class GameApp(App):
         board = self.root.ids.board
         board.restore_cell_data()
         Window.bind(on_key_down=board.on_key_down)
+
+    @staticmethod
+    def rate_app():
+        PythonActivity = autoclass('org.renpy.android.PythonActivity')
+        Intent = autoclass('android.content.Intent')
+        Uri = autoclass('android.net.Uri')
+
+        currentActivity = cast('android.app.Activity', PythonActivity.mActivity)
+        package_name = currentActivity.getPackageName()
+        intent = Intent()
+        intent.setAction(Intent.ACTION_EDIT)
+        market_url = "bazaar://details?id={0}".format(package_name)
+        web_url = "https://cafebazaar.ir/app/{0}/".format(package_name)
+        try:
+            intent.setData(Uri.parse(market_url))
+            intent.setPackage("com.farsitel.bazaar")
+            currentActivity.startActivity(intent)
+        except Exception:
+            intent.setData(Uri.parse(web_url))
+            currentActivity.startActivity(intent)
+
+    def on_pause(self):
+        return True
+
+    def on_resume(self):
+        return True
 
 if __name__ == '__main__':
     Window.clearcolor = get_color_from_hex('607d8b')

@@ -99,7 +99,7 @@ BoxLayout:
 
     FloatLayout:
         id: floatLayout
-        size_hint_y: 76
+        size_hint_y: 85
         Board:
             id: board
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -111,20 +111,26 @@ BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         size_hint: (None, 1.0)
         width: root.base_size
-        size_hint_y: 12
+        size_hint_y: 15
         spacing: PADDING / 2
         padding: [0, PADDING]
 
         ImageButton:
-            size_hint_x: 50
+            size_hint_x: 33
             on_press: board.show_popup()
             source: 'data/img/reset.png'
 
         ImageButton:
-            size_hint_x: 50
+            size_hint_x: 33
             on_press: board.toggle_music()
             id: btn_sound
             source: 'data/img/sound.png'
+
+        ImageButton:
+            size_hint_x: 33
+            on_press: app.rate_app()
+            source: 'data/img/rate.png'
+
 
 <Tile>:
     canvas:
