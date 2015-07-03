@@ -1,3 +1,5 @@
+# -*- encoding: utf-8 -*-
+
 from kivy.animation import Animation
 from kivy.factory import Factory
 import random
@@ -11,7 +13,7 @@ from kivy.core.window import Keyboard
 from kivy.vector import Vector
 from kivy.core.text import LabelBase
 from kivy.core.audio import SoundLoader
-from kivy.clock import Clock
+from kivy.clock import Clock, mainthread
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
 
@@ -23,7 +25,9 @@ COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
           'd4e157', '9ccc65', '66bb6a', '009688',
           'ffb300', 'ff9800', 'ff7043', 'ec407a',
           'bdbdbd', '78909c', '8d6e63', 'ab47bc')
-NUMBERS = [2] * 4 + [4]
+NUMBERS = [2] * 10 + [4]
+# برای تنظیم کردت اندازه ی فونتدر صفحات با اندازه های مختلف
+FONT_SIZE_COEFFICIENT = 0.36
 
 KEY_VECTORS = {
     Keyboard.keycodes['up']: (0, 1),
@@ -47,7 +51,7 @@ class Board(Widget):
     storage = JsonStore('db.json')
     best_score = NumericProperty(0)
     win_flag = False
-    is_stoped_background_music = False
+    is_stopped_background_music = False
 
     def __init__(self, **kwargs):
         super(Board, self).__init__(**kwargs)
@@ -55,12 +59,12 @@ class Board(Widget):
         self.backgroundSound = SoundLoader.load('data/audio/background.mp3')
         self.winSound = SoundLoader.load('data/audio/win.mp3')
         self.loseSound = SoundLoader.load('data/audio/lose.mp3')
-        # self.backgroundSound.loop = True change volume to default on start
+        # self.backgroundSound.loop = True میزان صدای آهنگ را هنگام شروع مجدد reset می کند
         self.backgroundSound.on_stop = self.play_background_sound
         Clock.schedule_once(self.play_background_sound)
 
     def play_background_sound(self, dt=None):
-        if self.is_stoped_background_music is False:
+        if self.is_stopped_background_music is False:
             self.backgroundSound.play()
             self.backgroundSound.volume = VOLUME
 
@@ -75,11 +79,15 @@ class Board(Widget):
                 BorderImage(pos=self.cell_pos(x, y),
                             size=self.cell_size,
                             source='data/img/cell.png')
+        self.resize_tiles()
 
+    def resize_tiles(self):
         for x, y in self.all_cell():
             tile = self.b[x][y]
             if tile:
                 tile.resize(size=self.cell_size, pos=self.cell_pos(x, y))
+        self.__reset()
+        self.restore_cell_data()
 
     @staticmethod
     def all_cell(flip_x=False, flip_y=False):
@@ -92,6 +100,12 @@ class Board(Widget):
                 self.y + y*(self.cell_size[1] + SPACING) + SPACING)
 
     def reset(self):
+        self.__reset()
+
+        self.new_tile()
+        self.new_tile()
+
+    def __reset(self):
         self.moving = False
         self.win_flag = False
         self.b = [[None for i in range(NUMBER_OF_CELL)]
@@ -100,9 +114,6 @@ class Board(Widget):
         self.clear_widgets()
         self.stop_lose_sound()
         self.score = 0
-
-        self.new_tile()
-        self.new_tile()
 
     @staticmethod
     def valid_cell(x, y):
@@ -124,9 +135,19 @@ class Board(Widget):
         self.moving = False
 
     def add_tile(self, x, y, number=2):
-        tile = Tile(number=number, size=self.cell_size, pos=self.cell_pos(x, y))
+        # برای اانیمیشن
+        pos = self.cell_pos(x, y)
+        size = self.cell_size
+        center = (size[0] / 2 + pos[0], size[1] / 2 + pos[1])
+
+        tile = Tile(number=number, size=(0, 0), pos=center,
+                    font_size=0)
         self.b[x][y] = tile
         self.add_widget(tile)
+
+        # خانه های جدید یا خانه های ذخیره شده را با انیمیشن وارد صفحه می کند
+        tile.new_tile_animate(pos=pos, size=size,
+                              font_size=self.cell_size[0]*FONT_SIZE_COEFFICIENT)
 
     def on_key_down(self, window, key, *args):
         if key in KEY_VECTORS:
@@ -159,7 +180,11 @@ class Board(Widget):
                 self.b[x][y] = None
                 x += dir_x
                 y += dir_y
-                self.remove_widget(self.b[x][y])
+                # remove animate == not add animate
+                remove_animate = self.b[x][y].new_tile_animate(size=(0, 0), pos=self.b[x][y].center, font_size=0,
+                                                               duration=0.05)
+                # خانه ی مورد نظر را به عنوان آرگومان به تابع self.remove_widget ارسال می کند
+                remove_animate.on_complete = self.remove_widget
                 self.b[x][y] = tile
                 tile.number *= 2
                 tile.update_color()
@@ -177,9 +202,8 @@ class Board(Widget):
             if board_x == x and board_y == y:
                 continue
             
-            animate = Animation(pos=self.cell_pos(x, y), duration=0.09, transition='out_sine')
-            animate.start(tile)
-        
+            animate = tile.move_animate(pos=self.cell_pos(x, y))
+
         if animate and not self.moving:
             self.moveSound.play()
             animate.on_complete = self.new_tile
@@ -209,7 +233,7 @@ class Board(Widget):
     def win(self):
         popup = Factory.WinPopup()
         popup.open()
-        if self.is_stoped_background_music is False:
+        if self.is_stopped_background_music is False:
             self.toggle_music()
             popup.on_dismiss = self.toggle_music
         self.winSound.play()
@@ -217,7 +241,7 @@ class Board(Widget):
     def lose(self, dt=None):
         popup = Factory.LosePopup()
         popup.open()
-        if self.is_stoped_background_music is False:
+        if self.is_stopped_background_music is False:
             self.toggle_music()
             popup.on_dismiss = self.toggle_music
         self.loseSound.play()
@@ -237,36 +261,35 @@ class Board(Widget):
 
         return True
 
-    on_size = resize
-    on_pos = resize
-
     def store_cell_data(self):
         data = [[self.b[i][j].number if self.b[i][j] else None
                  for j in range(NUMBER_OF_CELL)]
                 for i in range(NUMBER_OF_CELL)]
 
         self.storage.put('storage', cells=data, score=self.score, best_score=self.best_score,
-                         win_flag=self.win_flag, is_stoped_background_music=self.is_stoped_background_music)
+                         win_flag=self.win_flag, is_stopped_background_music=self.is_stopped_background_music)
 
-    def restore_cell_data(self):
+    def restore_cell_data(self, *args):
         global NUMBER_OF_CELL
-        btn_sound = GameApp.get_running_app().root.ids.btn_sound
-        if self.storage.exists('storage'):
-            data = self.storage.get('storage')['cells']
-            NUMBER_OF_CELL = len(data[0])
-            for x, y in self.all_cell():
-                if data[x][y]:
-                    self.add_tile(x, y, number=data[x][y])
-            self.score = self.storage.get('storage')['score']
-            self.best_score = self.storage.get('storage')['best_score']
-            self.win_flag = self.storage.get('storage')['win_flag']
-            self.is_stoped_background_music = self.storage.get('storage')['is_stoped_background_music']
-            if self.is_stoped_background_music:
-                btn_sound.source = 'data/img/stop-sound.png'
+        root = GameApp.get_running_app().root
+        if root:
+            btn_sound = root.ids.btn_sound
+            if self.storage.exists('storage'):
+                data = self.storage.get('storage')['cells']
+                NUMBER_OF_CELL = len(data[0])
+                for x, y in self.all_cell():
+                    if data[x][y]:
+                        self.add_tile(x, y, number=data[x][y])
+                self.score = self.storage.get('storage')['score']
+                self.best_score = self.storage.get('storage')['best_score']
+                self.win_flag = self.storage.get('storage')['win_flag']
+                self.is_stopped_background_music = self.storage.get('storage')['is_stopped_background_music']
+                if self.is_stopped_background_music:
+                    btn_sound.source = 'data/img/stop-sound.png'
+                else:
+                    btn_sound.source = 'data/img/sound.png'
             else:
-                btn_sound.source = 'data/img/sound.png'
-        else:
-            self.reset()
+                self.reset()
 
     @staticmethod
     def show_popup():
@@ -276,16 +299,19 @@ class Board(Widget):
     def toggle_music(self):
         btn_sound = GameApp.get_running_app().root.ids.btn_sound
         if self.backgroundSound.state is 'play':
-            # is required for play_background_sound method because self.backgroundSound.on_stop = self.play_background_sound
-            self.is_stoped_background_music = True
+            # مقدار دهی متغییر زیر برای تابعplay_background_sound مورد نیاز است زیرا
+            # self.backgroundSound.on_stop = self.play_background_sound
+            self.is_stopped_background_music = True
             self.backgroundSound.stop()
             btn_sound.source = 'data/img/stop-sound.png'
         else:
-            self.is_stoped_background_music = False
+            self.is_stopped_background_music = False
             self.backgroundSound.play()
             self.backgroundSound.volume = VOLUME
             btn_sound.source = 'data/img/sound.png'
-    
+
+    on_size = resize
+    on_pos = resize
 
 
 class Tile(Widget):
@@ -298,17 +324,26 @@ class Tile(Widget):
     def __init__(self, number=2, **kwargs):
         super(Tile, self).__init__(**kwargs)
         self.number = number
-        self.font_size = 0.36 * self.width
         self.update_color()
 
     def update_color(self):
         self.color = get_color_from_hex(TILE_COLORS[self.number])
-        text = str(self.number)
 
     def resize(self, pos, size):
         self.size = size
         self.pos = pos
-        self.font_size = 0.36 * self.width
+        self.font_size = FONT_SIZE_COEFFICIENT * self.width
+
+    def move_animate(self, pos):
+        animate = Animation(pos=pos, duration=0.3, transition='out_sine')
+        animate.start(self)
+        return animate
+
+    def new_tile_animate(self, pos, size, font_size, duration=0.05):
+        self.font_size = font_size
+        animate = Animation(pos=pos, size=size, duration=duration, transition='out_sine')
+        animate.start(self)
+        return animate
 
 
 class BaseButton(Button):
@@ -318,19 +353,32 @@ class BaseButton(Button):
 
 
 class GameApp(App):
+
     def on_start(self):
-        board = self.root.ids.board
-        board.restore_cell_data()
-        Window.bind(on_key_down=board.on_key_down)
+        # برای وارد شدن  به main loop. چون که تا وارد main loop نشویم اندازه ی خانه ها تعیین نمی شود
+        #FIXME:  هنگام اضافه کردن خانه های جدید یا خانه های ذخیره شده در پایگاه داده هنگام اجرای مجدد برنامه،
+        #  انیمیشن ها به صورت موازی انجام می پذیرند (قبل از این که برنامه وارد main loop  شود) که این عمل
+        # سبب می شود که قبل از مشخص سازی مکان هر خانه، مکانی نامناسب به هر خانه اختصاص داده شود و در ابتد
+        # ای اجرا، خانه ها در خارج از برد قرار می گیرند. بهترین راه حل برای رفع این مشکل چیست؟
+        # جواب 1: فراخوانی اولیه  ی خانه های ذخیره شده یا خانه های جدید (board.restore_cell_data) را در تابعی
+        # که اندازه ها را تعیین می کند(resize_tiles) قرار می دهیم
+        #جواب 2: در تابع on_start از یک Clock استفاده می کنیم تا تابع on_run  را هر n ثانیه فراخوانی کند
+        # اگر اندازه board.cell_pos(3, 3) از مقداری m بزرگتر بود یعنی وارد mail loop شده ایم
+        self.on_run()
 
     def on_stop(self):
         board = self.root.ids.board
         board.store_cell_data()
 
+    def on_run(self, dt=None):
+        board = self.root.ids.board
+        board.restore_cell_data()
+        Window.bind(on_key_down=board.on_key_down)
 
 if __name__ == '__main__':
     Window.clearcolor = get_color_from_hex('607d8b')
     LabelBase.register('Roboto',
                        fn_regular='data/font/Roboto-Thin.ttf',
                        fn_bold='data/font/Roboto-Medium.ttf')
-    GameApp().run()
+    game = GameApp()
+    game.run()

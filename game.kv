@@ -24,9 +24,13 @@
             source: 'data/img/cell.png'
             pos: self.pos
             size: self.size
-        
+
     Image:
         source: root.source
+        size_hint: (None, None)
+        width: '32dp'
+        height: '32dp'
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     ScoreLabel:
         text: root.text
         font_size: root.font_size
@@ -67,8 +71,8 @@ BoxLayout:
     padding: [0, PADDING]
     BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: (None, 1.0)
-        size_hint_y: 12
+        size_hint: (None, None)
+        height: '72dp'
         width: root.base_size
         padding: [PADDING / 2, PADDING / 2]
         spacing: PADDING / 2
