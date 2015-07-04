@@ -1,5 +1,7 @@
-#: set PADDING 10
+#:import dp kivy.metrics.dp
 #: import utils kivy.utils
+#: import PADDING main.PADDING
+#: import SPACING main.SPACING
 
 <CustomLabel@Label>:
     font_name: 'Roboto'
@@ -15,8 +17,8 @@
     text: ''
     source: None
     font_size: 0
-    spacing: PADDING / 4
-    padding: [PADDING / 2, PADDING / 2]
+    spacing: SPACING
+    padding: [PADDING/4, PADDING/4]
     canvas.before:
         Color:
             rgb: utils.get_color_from_hex('546e7a')
@@ -28,8 +30,8 @@
     Image:
         source: root.source
         size_hint: (None, None)
-        width: '32dp'
-        height: '32dp'
+        width: dp(32)
+        height: dp(32)
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     ScoreLabel:
         text: root.text
@@ -53,7 +55,7 @@
         pos: self.parent.pos
         size: self.parent.size
         orientation: 'lr-tb'
-        padding: [PADDING / 2, PADDING / 2]
+        padding: [PADDING, PADDING]
         Image:
             source: root.source
 
@@ -72,10 +74,10 @@ BoxLayout:
     BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         size_hint: (None, None)
-        height: '72dp'
+        height: dp(90)
         width: root.base_size
-        padding: [PADDING / 2, PADDING / 2]
-        spacing: PADDING / 2
+        padding: [PADDING, PADDING]
+        spacing: SPACING
         CustomLabel:
             text: '2048[sup]kivy[/sup]'
             markup: True
@@ -112,7 +114,7 @@ BoxLayout:
         size_hint: (None, 1.0)
         width: root.base_size
         size_hint_y: 15
-        spacing: PADDING / 2
+        spacing: SPACING
         padding: [0, PADDING]
 
         ImageButton:
@@ -174,7 +176,7 @@ BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
-            spacing: PADDING
+            spacing: SPACING
             DangerButton:
                 text: 'Yes'
                 on_press: root.dismiss() and app.root.ids.board.reset()
@@ -198,7 +200,7 @@ BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
-            spacing: PADDING
+            spacing: SPACING
             InfoButton:
                 text: 'Continue'
                 on_press: root.dismiss() and app.root.ids.board.stop_win_sound()
@@ -219,7 +221,7 @@ BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
-            spacing: PADDING
+            spacing: SPACING
             InfoButton:
                 text: 'Reset and Continue'
                 on_press: root.dismiss() and app.root.ids.board.reset()

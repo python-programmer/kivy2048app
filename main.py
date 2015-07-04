@@ -13,13 +13,15 @@ from kivy.core.window import Keyboard
 from kivy.vector import Vector
 from kivy.core.text import LabelBase
 from kivy.core.audio import SoundLoader
-from kivy.clock import Clock, mainthread
+from kivy.clock import Clock
 from kivy.storage.jsonstore import JsonStore
 from kivy.uix.button import Button
+from kivy.logger import Logger
+from kivy.metrics import dp
 from jnius import cast
 from jnius import autoclass
 
-__version__ = '0.1.24'
+__version__ = '0.1.25'
 
 NUMBER_OF_CELL = 4
 SPACING = 7
@@ -27,6 +29,7 @@ COLORS = ('26c6da', '29b6f6', '2196f3', '5c6bc0',
           'd4e157', '9ccc65', '66bb6a', '009688',
           'ffb300', 'ff9800', 'ff7043', 'ec407a',
           'bdbdbd', '78909c', '8d6e63', 'ab47bc')
+
 NUMBERS = [2] * 10 + [4]
 # برای تنظیم کردت اندازه ی فونتدر صفحات با اندازه های مختلف
 FONT_SIZE_COEFFICIENT = 0.36
@@ -39,6 +42,10 @@ KEY_VECTORS = {
 }
 
 VOLUME = 0.2
+
+#در اینجا این مقادیر را تنظیم کردیم چرا که در فایل kv باید برای هر استفاده یک از متد dp استفاده کنیم
+PADDING = dp(10)
+SPACING = dp(5)
 
 TILE_COLORS = {2 ** i: color for i, color in enumerate(COLORS, start=1)}
 
@@ -337,7 +344,7 @@ class Tile(Widget):
         self.font_size = FONT_SIZE_COEFFICIENT * self.width
 
     def move_animate(self, pos):
-        animate = Animation(pos=pos, duration=0.3, transition='out_sine')
+        animate = Animation(pos=pos, duration=0.15, transition='out_sine')
         animate.start(self)
         return animate
 
@@ -385,15 +392,21 @@ class GameApp(App):
 
         currentActivity = cast('android.app.Activity', PythonActivity.mActivity)
         package_name = currentActivity.getPackageName()
-        intent = Intent()
-        intent.setAction(Intent.ACTION_EDIT)
         market_url = "bazaar://details?id={0}".format(package_name)
         web_url = "https://cafebazaar.ir/app/{0}/".format(package_name)
         try:
+            Logger.info('Rating: In market url')
+            intent = Intent()
+            intent.setAction(Intent.ACTION_EDIT)
             intent.setData(Uri.parse(market_url))
             intent.setPackage("com.farsitel.bazaar")
             currentActivity.startActivity(intent)
         except Exception:
+            Logger.warning('Rating: In web url')
+            # برای این که هنگام بروز exception از action قبلی استفاده می کند بایستی دوباره این شی را ا
+            # ٫یجاد کنیم تا این ارتباط گسسته شود
+            intent = Intent()
+            intent.setAction(Intent.ACTION_VIEW)
             intent.setData(Uri.parse(web_url))
             currentActivity.startActivity(intent)
 
@@ -402,6 +415,7 @@ class GameApp(App):
 
     def on_resume(self):
         return True
+
 
 if __name__ == '__main__':
     Window.clearcolor = get_color_from_hex('607d8b')
