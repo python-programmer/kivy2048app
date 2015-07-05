@@ -20,6 +20,8 @@ from kivy.logger import Logger
 from kivy.metrics import dp
 from jnius import cast
 from jnius import autoclass
+from bidi.algorithm import get_display
+import arabic_reshaper
 
 __version__ = '0.1.25'
 
@@ -49,6 +51,11 @@ SPACING = dp(5)
 
 TILE_COLORS = {2 ** i: color for i, color in enumerate(COLORS, start=1)}
 
+def set_bidi_text(text):
+    text = unicode(text, 'utf-8')
+    result = arabic_reshaper.reshape(text)
+    result = get_display(result)
+    return result
 
 class Board(Widget):
     b = [[None for i in range(NUMBER_OF_CELL)]
@@ -422,5 +429,7 @@ if __name__ == '__main__':
     LabelBase.register('Roboto',
                        fn_regular='data/font/Roboto-Thin.ttf',
                        fn_bold='data/font/Roboto-Medium.ttf')
+    LabelBase.register('Tabassom',
+                       fn_regular='data/font/tabassom.ttf')
     game = GameApp()
     game.run()

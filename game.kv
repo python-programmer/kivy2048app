@@ -1,10 +1,14 @@
 #:import dp kivy.metrics.dp
 #: import utils kivy.utils
+#: import set_text main.set_bidi_text
 #: import PADDING main.PADDING
 #: import SPACING main.SPACING
 
 <CustomLabel@Label>:
     font_name: 'Roboto'
+
+<FarsiLabel@Label>:
+    font_name: 'Tabassom'
 
 <ScoreLabel@CustomLabel>:
     markup: True
@@ -39,7 +43,7 @@
     
 
 <BaseButton>:
-    font_name: 'Roboto'
+    font_name: 'Tabassom'
     bold: True
     border: [2, 2, 2, 2]
     on_press: root.touchSound.play()
@@ -154,7 +158,7 @@ BoxLayout:
 <CustomPopup@Popup>:
     base_size: app.root.ids.board.width
     title_color: utils.get_color_from_hex('333333')
-    title_size: root.base_size / 16
+    title_size: root.base_size / 14
     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
     size_hint: (None, None)
     width: root.base_size
@@ -162,67 +166,69 @@ BoxLayout:
     auto_dismiss: False
     background: 'data/img/board.png'
     title_color: utils.get_color_from_hex('546E7A')
+    title_font: 'Tabassom'
+    title_align: 'right'
 
 <ResetPopup@CustomPopup>:
-    title: 'Reset'
+    title: set_text('شروع مجدد برنامه')
     BoxLayout:
         orientation: 'vertical'
-        CustomLabel:
-            text: 'Are you sure?'
+        FarsiLabel:
+            text: set_text('آیا می خواهید از اول شروع کنید؟')
             color: utils.get_color_from_hex('546E7A')
             bold: True
-            font_size: root.base_size / 24
+            font_size: root.base_size / 16
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
             spacing: SPACING
-            DangerButton:
-                text: 'Yes'
-                on_press: root.dismiss() and app.root.ids.board.reset()
-                font_size: root.base_size / 24
             InfoButton:
-                text: 'No'
+                text: set_text('خیر')
                 on_press: root.dismiss()
-                font_size: root.base_size / 24
+                font_size: root.base_size / 16
+            DangerButton:
+                text: set_text('بله')
+                on_press: root.dismiss() and app.root.ids.board.reset()
+                font_size: root.base_size / 16
 
 
 <WinPopup@CustomPopup>:
-    title: 'Congratulation!'
+    title: set_text('پیروزی!')
     BoxLayout:
         orientation: 'vertical'
-        CustomLabel:
-            text: 'You have successfully reached to 2048'
+        FarsiLabel:
+            text: set_text('شما با موفقیت به 2048 رسیدید')
             color: utils.get_color_from_hex('546E7A')
             bold: True
-            font_size: root.base_size / 24
+            font_size: root.base_size / 16
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
             spacing: SPACING
             InfoButton:
-                text: 'Continue'
+                text: set_text('ادامه دادن')
                 on_press: root.dismiss() and app.root.ids.board.stop_win_sound()
-                font_size: root.base_size / 24
+                font_size: root.base_size / 16
 
 <LosePopup@CustomPopup>:
-    title: 'Game over!'
+    title: set_text('شکست!')
     BoxLayout:
         orientation: 'vertical'
-        CustomLabel:
-            text: 'Victory is always possible for the person who refuses to stop fighting\n'
+        FarsiLabel:
+            text: set_text('تمام موفقيت هاي عظيم بر پايه ي شكست بنا شده اند\n')
             text_size: self.size
             halign: 'center'
             color: utils.get_color_from_hex('546E7A')
             bold: True
-            font_size: root.base_size / 24
+            font_size: root.base_size / 16
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
             height: root.base_size / 8
             spacing: SPACING
             InfoButton:
-                text: 'Reset and Continue'
+                text: set_text('شروع مجدد')
                 on_press: root.dismiss() and app.root.ids.board.reset()
-                font_size: root.base_size / 24
+                font_size: root.base_size / 16
