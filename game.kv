@@ -1,52 +1,57 @@
-#:import dp kivy.metrics.dp
+# ------------------------- Review 1 -------------------------#
+# 1. حذف 7 popup سفارشی برای کاربرد های مختلف و استفاده از BasePopup و PopupContent  به جای
+# آن ها(popup ها به صورت دینامیک در فایل main.py  ساخته می شوند) – حذف تقریبا 15 خط کد
+# 2. تغییر اندازه ی فونت ها براساس ارتفاع دکمه
+#-------------------------------------------------------------#
+#: import dp kivy.metrics.dp
 #: import utils kivy.utils
-#: import set_text main.set_bidi_text
-#: import PADDING main.PADDING
-#: import SPACING main.SPACING
+#: import main main
 
-<CustomLabel@Label>:
+<EnLabel@Label>:
     font_name: 'Roboto'
 
-<FarsiLabel@Label>:
+<FaLabel@Label>:
     font_name: 'Tabassom'
 
-<ScoreLabel@CustomLabel>:
+<ScoreLabel@EnLabel>:
     markup: True
     bold: True
     halign: 'center'
     color: utils.get_color_from_hex('EEEEEE')
 
-<ScoreLayout@BoxLayout>:
-    orientation: 'vertical'
-    text: ''
-    source: None
-    font_size: 0
-    spacing: SPACING
-    padding: [PADDING/4, PADDING/4]
+<UserScoreLabel@EnLabel>:
+    text_size: self.size
+    halign: 'center'
+    valign: 'middle'
+    color: utils.get_color_from_hex('393939')
+    bold: True
+
+<VLine@Label>:
+    size_hint_x: None
+    width: '1dp'
     canvas.before:
         Color:
-            rgb: utils.get_color_from_hex('546e7a')
-        BorderImage:
-            source: 'data/img/cell.png'
+            rgb: utils.get_color_from_hex('CCCCCC')
+        Rectangle:
             pos: self.pos
             size: self.size
 
-    Image:
-        source: root.source
-        size_hint: (None, None)
-        width: dp(32)
-        height: dp(32)
-        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    ScoreLabel:
-        text: root.text
-        font_size: root.font_size
-    
+<HLine@Label>:
+    size_hint_y: None
+    height: '1dp'
+    canvas.before:
+        Color:
+            rgb: utils.get_color_from_hex('CCCCCC')
+        Rectangle:
+            pos: self.pos
+            size: self.size
 
 <BaseButton>:
     font_name: 'Tabassom'
     bold: True
-    border: [2, 2, 2, 2]
+    border: [4, 4, 4, 4]
     on_press: root.touchSound.play()
+    font_size: self.height * 0.6
 
 <DefaultButton@BaseButton>:
     background_normal: 'data/img/default_background_normal.png'
@@ -59,7 +64,7 @@
         pos: self.parent.pos
         size: self.parent.size
         orientation: 'lr-tb'
-        padding: [PADDING, PADDING]
+        padding: [main.PADDING, main.PADDING]
         Image:
             source: root.source
 
@@ -71,23 +76,155 @@
     background_normal: 'data/img/info_background_normal.png'
     background_down: 'data/img/info_background_down.png'
 
+<ToggleImageButton@ToggleButton>:
+    source: ''
+    back_normal: ''
+    back_down: ''
+    background_normal: root.back_normal
+    background_down: root.back_down
+    border: [30, 30, 30, 30]
+    StackLayout:
+        pos: self.parent.pos
+        size: self.parent.size
+        orientation: 'lr-tb'
+        padding: [main.PADDING, main.PADDING]
+        Image:
+            source: root.source
+
+<ScrollContainer>:
+	cols: 1
+	spacing: '2dp'
+	size_hint_y:None
+	padding: '5dp'
+
+<ScoreLayout@BoxLayout>:
+    text: ''
+    source: None
+    font_size: 0
+    orientation: 'vertical'
+    spacing: main.SPACING
+    padding: [main.PADDING/4, main.PADDING/4]
+    canvas.before:
+        Color:
+            rgb: utils.get_color_from_hex('546e7a')
+        BorderImage:
+            source: 'data/img/cell.png'
+            pos: self.pos
+            size: self.size
+
+    Image:
+        source: root.source
+    ScoreLabel:
+        text: root.text
+        font_size: root.font_size
+
+<Loading@BoxLayout>:
+    orientation: 'vertical'
+    size_hint_y: None
+    height: '64dp'
+    Image:
+        pos: self.pos
+        size: self.size
+        source: 'data/img/loading.gif'
+        anim_delay: 0.05
+
+<PopupContent@BoxLayout>:
+    text: ''
+    orientation: 'vertical'
+    base_size: app.root.ids.board.width
+    FaLabel:
+        text: root.text
+        color: utils.get_color_from_hex('546E7A')
+        size_hint_y: 80
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+        font_size: root.base_size / 16
+    BoxLayout:
+        id: btn_container
+        orientation: 'horizontal'
+        size_hint_y: 20
+        spacing: main.SPACING
+
+<UserScoreRow@BoxLayout>:
+    index: 0
+    user: ''
+    pts: 0
+    base_size: app.root.ids.board.width
+    size_hint_y: None
+    height: '64dp'
+    spacing: '1dp'
+    canvas.before:
+        Color:
+            rgb: utils.get_color_from_hex('FFFFFF')
+        BorderImage:
+            pos: self.pos
+            size: self.size
+            source: 'data/img/cell.png'
+    orientation: 'horizontal'
+    UserScoreLabel:
+        size_hint_x: 15
+        text: str(root.pts)
+        font_size: root.base_size / 24
+    VLine:
+    UserScoreLabel:
+        size_hint_x: 75
+        text: root.user
+        font_size: root.base_size / 24
+        halign: 'right'
+    VLine:
+    UserScoreLabel:
+        size_hint_x: 10
+        text: str(root.index)
+        font_size: root.base_size / 24
+
+<BasePopup@Popup>:
+    base_size: app.root.ids.board.width
+    title_color: utils.get_color_from_hex('546E7A')
+    title_font: 'Tabassom'
+    title_align: 'right'
+    title_size: root.base_size / 14
+    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+    size_hint: (None, None)
+    width: root.base_size
+    height: root.base_size / 1.4
+    auto_dismiss: False
+    background: 'data/img/board.png'
+
+<Tile>:
+    canvas:
+        Color:
+            rgb: self.color
+        BorderImage:
+            pos: self.pos
+            size: self.size
+            source: 'data/img/cell.png'
+            border: [10, 10, 10, 10]
+
+    EnLabel:
+        pos: root.pos
+        size: root.size
+        text: str(root.number)
+        color: root.number_color
+        font_size: root.font_size
+        bold: True
+
 BoxLayout:
     base_size: board.width
     orientation: 'vertical'
-    padding: [0, PADDING]
     BoxLayout:
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         size_hint: (None, None)
-        height: dp(90)
+        height: '96dp'
         width: root.base_size
-        padding: [PADDING, PADDING]
-        spacing: SPACING
-        CustomLabel:
+        padding: [main.PADDING/2, main.PADDING/2]
+        spacing: main.SPACING
+        EnLabel:
             text: '2048[sup]kivy[/sup]'
             markup: True
             bold: True
             size_hint_x: 34
-            font_size: root.base_size / 16
+            font_size: root.base_size / 12
             text_size: self.size
             halign: 'left'
             valign: 'middle'
@@ -105,130 +242,96 @@ BoxLayout:
 
     FloatLayout:
         id: floatLayout
-        size_hint_y: 85
         Board:
             id: board
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             size_hint: (None, None)
-            size: [min(floatLayout.width, floatLayout.height) - 2 * PADDING] * 2
+            size: [min(floatLayout.width, floatLayout.height) - 2 * main.PADDING] * 2
 
     BoxLayout:
         orientation: 'horizontal'
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-        size_hint: (None, 1.0)
+        size_hint: (None, None)
         width: root.base_size
-        size_hint_y: 15
-        spacing: SPACING
-        padding: [0, PADDING]
+        height: '72dp'
+        spacing: main.SPACING
+        padding: [0, main.PADDING]
 
         ImageButton:
-            size_hint_x: 33
-            on_press: board.show_popup()
+            size_hint_x: 25
+            on_press: board.show_reset_popup()
             source: 'data/img/reset.png'
 
         ImageButton:
-            size_hint_x: 33
-            on_press: board.toggle_music()
             id: btn_sound
+            size_hint_x: 25
+            on_press: board.toggle_music()
             source: 'data/img/sound.png'
 
         ImageButton:
-            size_hint_x: 33
+            size_hint_x: 25
+            on_press: app.show_score_table()
+            source: 'data/img/result.png'
+
+        ImageButton:
+            size_hint_x: 25
             on_press: app.rate_app()
             source: 'data/img/rate.png'
 
-
-<Tile>:
-    canvas:
-        Color:
-            rgb: self.color
-        BorderImage:
-            pos: self.pos
-            size: self.size
-            source: 'data/img/cell.png'
-
-    CustomLabel:
-        pos: root.pos
-        size: root.size
-        text: str(root.number)
-        color: root.number_color
-        font_size: root.font_size
-        bold: True
-
-<CustomPopup@Popup>:
+<ScoreTable@ModalView>:
     base_size: app.root.ids.board.width
-    title_color: utils.get_color_from_hex('333333')
-    title_size: root.base_size / 14
-    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
-    size_hint: (None, None)
-    width: root.base_size
-    height: root.base_size / 1.8
-    auto_dismiss: False
-    background: 'data/img/board.png'
-    title_color: utils.get_color_from_hex('546E7A')
-    title_font: 'Tabassom'
-    title_align: 'right'
-
-<ResetPopup@CustomPopup>:
-    title: set_text('شروع مجدد برنامه')
     BoxLayout:
+        canvas.before:
+            Color:
+                rgb: utils.get_color_from_hex('E0E0E0')
+            Rectangle:
+                pos: self.pos
+                size: self.size
         orientation: 'vertical'
-        FarsiLabel:
-            text: set_text('آیا می خواهید از اول شروع کنید؟')
-            color: utils.get_color_from_hex('546E7A')
-            bold: True
-            font_size: root.base_size / 16
+        padding: [main.PADDING/2, main.PADDING/2]
         BoxLayout:
             orientation: 'horizontal'
             size_hint_y: None
-            height: root.base_size / 8
-            spacing: SPACING
-            InfoButton:
-                text: set_text('خیر')
-                on_press: root.dismiss()
-                font_size: root.base_size / 16
+            height: dp(64)
+            padding: [main.PADDING/2, main.PADDING/2]
+            spacing: '1dp'
             DangerButton:
-                text: set_text('بله')
-                on_press: root.dismiss() and app.root.ids.board.reset()
-                font_size: root.base_size / 16
-
-
-<WinPopup@CustomPopup>:
-    title: set_text('پیروزی!')
-    BoxLayout:
-        orientation: 'vertical'
-        FarsiLabel:
-            text: set_text('شما با موفقیت به 2048 رسیدید')
-            color: utils.get_color_from_hex('546E7A')
-            bold: True
-            font_size: root.base_size / 16
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: root.base_size / 8
-            spacing: SPACING
-            InfoButton:
-                text: set_text('ادامه دادن')
-                on_press: root.dismiss() and app.root.ids.board.stop_win_sound()
-                font_size: root.base_size / 16
-
-<LosePopup@CustomPopup>:
-    title: set_text('شکست!')
-    BoxLayout:
-        orientation: 'vertical'
-        FarsiLabel:
-            text: set_text('تمام موفقيت هاي عظيم بر پايه ي شكست بنا شده اند\n')
-            text_size: self.size
-            halign: 'center'
-            color: utils.get_color_from_hex('546E7A')
-            bold: True
-            font_size: root.base_size / 16
-        BoxLayout:
-            orientation: 'horizontal'
-            size_hint_y: None
-            height: root.base_size / 8
-            spacing: SPACING
-            InfoButton:
-                text: set_text('شروع مجدد')
-                on_press: root.dismiss() and app.root.ids.board.reset()
-                font_size: root.base_size / 16
+                font_name: 'Roboto'
+                text: '×'
+                bold: True
+                size_hint: None, None
+                width: '32dp'
+                height: '32dp'
+                on_press: root.dismiss()
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            Widget:
+                size_hint_x: 10
+            ToggleImageButton:
+                group: 'date'
+                source: 'data/img/month.png'
+                back_normal: 'data/img/month-btn.png'
+                back_down: 'data/img/month-btn-down.png'
+                size_hint_x: 25
+                on_press: app.show_score_table('month')
+            ToggleImageButton:
+                group: 'date'
+                source: 'data/img/week.png'
+                back_normal: 'data/img/week-btn.png'
+                back_down: 'data/img/week-btn-down.png'
+                size_hint_x: 25
+                on_press: app.show_score_table('week')
+            ToggleImageButton:
+                group: 'date'
+                source: 'data/img/day.png'
+                back_normal: 'data/img/day-btn.png'
+                back_down: 'data/img/day-btn-down.png'
+                state: 'down'
+                size_hint_x: 25
+                on_press: app.show_score_table('day')
+        HLine:
+        ScrollView:
+            id: scrollveiw_id
+            bar_margin: 10
+            ScrollContainer:
+                id: top_score_list
+                Loading:
